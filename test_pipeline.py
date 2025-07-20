@@ -7,6 +7,8 @@ from app.slot_manager import get_missing_slots
 import random 
 import string
 from app.generate_reply import Generate_missing,Generate_final_reply
+from app.tts import speak
+from pydantic import ValidationError
 # if __name__ == "__main__":
 #     recorder = AudioRecorder()
 
@@ -37,13 +39,21 @@ from app.generate_reply import Generate_missing,Generate_final_reply
 session_id = ''.join(random.choice(string.ascii_letters) for _ in range(5))
 print(session_id)
 create_session(session_id)
+start = "Hi, how can i assist you today?"
 print("Hi, how can i assist you today?")
+speak(start)
 a = True
 while(a):
     audio_file = AutoAudioRecorder(3).record_audio(max_silence_sec=5)
     transcription = FasterWhisperTranscriber().transcribe_audio_from_memory(audio_file)
     raw_json = IntentExtractor(transcription).extract_intent()
-    refined_query = ResolveRawQuery(raw_json,session_id).resolve()
+    
+    try:
+        refined_query = ResolveRawQuery(raw_json, session_id).resolve()
+    except ValidationError as e:
+        print("⚠️ Invalid intent or data:", raw_json)
+        speak("Sorry, I did not understand that. Please try again.")
+        continue
     set_intent(session_id, refined_query.intent)
     slot_data = refined_query.model_dump(exclude={"intent"}, exclude_none=True)
     set_slot(session_id, slot_data)

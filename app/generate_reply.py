@@ -1,5 +1,5 @@
 from api.schemas import RefinedQuery
-
+from app.tts import speak
 final_reply = {
     "book_appointment": "Your appointment has been successfully booked. Please remember to show up at the hospital on time. We look forward to seeing you. Have a nice day! ",
     "cancel_appointment": "Your appointment has been successfully cancelled. We hope to see you again soon. Have a nice day! ",
@@ -26,12 +26,12 @@ missing_slots_followup = {
 def Generate_missing(missing: list, intent: str):
 
     if intent == "book_appointment":
-            return missing_slots_followup[intent][missing[0]]
+            return speak(missing_slots_followup[intent][missing[0]])
     elif intent == "cancel_appointment":
-            return missing_slots_followup[intent][missing[0]]
+            return speak(missing_slots_followup[intent][missing[0]])
     elif intent == "inquire_availability":
-            return missing_slots_followup[intent][missing[0]]
+            return speak(missing_slots_followup[intent][missing[0]])
            
 def Generate_final_reply(intent: str):
-    return final_reply[intent]   
+    return speak(final_reply[intent])
     
